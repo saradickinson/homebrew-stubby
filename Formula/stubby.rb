@@ -9,7 +9,6 @@ class Stubby < Formula
   depends_on "automake" => :build
   depends_on "getdns" => :build
   depends_on "libtool" => :build
-
   def install
     system "autoreconf", "-fiv"
     system "./configure", "--disable-dependency-tracking",
