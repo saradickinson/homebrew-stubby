@@ -3,9 +3,7 @@ class Stubby < Formula
   homepage "https://getdnsapi.net/blog/dns-privacy-daemon-stubby/"
   url "https://github.com/getdnsapi/stubby/archive/v0.1.0.tar.gz"
   sha256 "6210291850d6f7f124a5ba4bcee2f50814f020b7a0c4e67c6646bfe35ed5dd5b"
-  head "https://github.com/getdnsapi/stubby.git", :branch => "master"
-
-  link_overwrite "bin/stubby"
+  head "https://github.com/getdnsapi/stubby.git", :branch => "develop"
 
   depends_on "autoconf" => :build
   depends_on "automake" => :build
@@ -13,9 +11,10 @@ class Stubby < Formula
   depends_on "libtool" => :build
   def install
     system "autoreconf", "-fiv"
-    system "./configure", "--prefix=#{prefix}",
-                          "--disable-dependency-tracking",
-                          "--disable-silent-rules"
+    system "./configure", "--disable-dependency-tracking",
+                          "--disable-silent-rules",
+                          "--prefix=#{prefix}",
+                          "--sysconfdir=#{etc}"
     system "make", "install"
   end
 
@@ -48,8 +47,8 @@ class Stubby < Formula
   end
 
   test do
-    (testpath/"test_message.txt").write("getdnsapi.net")
-    output = shell_output("#{bin}/stubby -C #{etc}/stubby.conf -z 127.0.0.1:5553 -e 0 -F test_message.txt -n 2>/dev/null")
-    assert_match "Response code was: GOOD", output
+    (testpath/"stubby_test.conf").write("{ listen_addresses: [ 127.0.0.1@5553 ] }")
+    output = shell_output("#{bin}/stubby -i -C stubby_test.conf 2>/dev/null")
+    assert_match "GETDNS_TRANSPORT_TLS", output
   end
 end
